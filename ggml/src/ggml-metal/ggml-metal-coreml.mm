@@ -214,6 +214,13 @@ ggml_metal_coreml_t ggml_metal_coreml_init(ggml_metal_device_t dev) try {
     return nullptr;
 }
 
+ggml_metal_buffer_id ggml_metal_coreml_buffer_id(const ggml_tensor * t) {
+    if (!t || !t->data) { return {nullptr, 0}; }
+    ggml_backend_buffer_t buffer = t->view_src ? t->view_src->buffer : t->buffer;
+    if (!ggml_backend_buffer_is_metal(buffer) || !buffer->context) { return {nullptr, 0}; }
+    return ggml_metal_buffer_get_id((ggml_metal_buffer_t) buffer->context, t);
+}
+
 void ggml_metal_coreml_free(ggml_metal_coreml_t ctx) { delete ctx; }
 bool ggml_metal_coreml_enabled(ggml_metal_coreml_t ctx) { return ctx && ctx->enabled; }
 bool ggml_metal_coreml_candidate(const ggml_tensor * op) { return ggml_metal_coreml_node_supported(op); }
